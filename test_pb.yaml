@@ -1,0 +1,7 @@
+- name: Test Connection to Cluster Nodes
+  hosts: cluster_nodes
+  gather_facts: false
+
+  tasks:
+    - name: Ping hosts
+      ansible.builtin.ping:
