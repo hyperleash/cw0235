@@ -1,4 +1,4 @@
-
+#install python and ansible on host before doing any of this
 - name: Generate Key on the localhost
   hosts: localhost
   become: yes
@@ -10,4 +10,10 @@
   become: yes
   roles:
     - key_distributor
+
+- name: install dependencies
+  hosts: cluster_nodes
+  become: yes
+  roles:
+    - install_dependencies
 
