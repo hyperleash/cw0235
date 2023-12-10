@@ -1,0 +1,13 @@
+
+- name: Generate Key on the localhost
+  hosts: localhost
+  become: yes
+  roles:
+    - key_generator
+
+- name: Distribute keys to cluster nodes
+  hosts: cluster_nodes
+  become: yes
+  roles:
+    - key_distributor
+
