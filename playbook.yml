@@ -11,6 +11,11 @@
   roles:
     - key_distributor
 
+- name: prepare disk on cluster nodes
+  hosts: cluster_nodes
+  roles:
+    - mount_disk
+
 - name: install dependencies
   hosts: cluster_nodes
   become: yes
