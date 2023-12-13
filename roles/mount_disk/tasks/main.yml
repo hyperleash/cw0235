@@ -3,11 +3,13 @@
     path: data/nvme1n1
     state: directory
     mode: '0755' 
+
 - name: format the volume as ext4
   community.general.filesystem:
     dev: /dev/nvme1n1
     fstype: ext4
   become: true
+  
 - name: mount the filesystem
   become: true
   ansible.posix.mount:
@@ -15,7 +17,7 @@
     src: /dev/nvme1n1
     fstype: ext4
     state: mounted 
-  become: true
+
 - name: change the owner back to ec2-user after mounting
   become: true
   ansible.builtin.file:

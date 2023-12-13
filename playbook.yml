@@ -6,19 +6,31 @@
     - key_generator
 
 - name: Distribute keys to cluster nodes
-  hosts: cluster_nodes
+  hosts: cluster_nodes:client
   become: yes
   roles:
     - key_distributor
 
 - name: prepare disk on cluster nodes
-  hosts: cluster_nodes
+  hosts: cluster_nodes:client
   roles:
     - mount_disk
 
 - name: install dependencies
-  hosts: cluster_nodes
+  hosts: cluster_nodes:client
   become: yes
   roles:
     - install_dependencies
+
+- name: Download db on the client
+  hosts: client
+  become: yes
+  roles:
+    - data
+
+- name: Distribute the file to other clients
+  hosts: cluster_nodes
+  #become: yes
+  roles:
+    - data_distributer
 

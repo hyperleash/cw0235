@@ -5,6 +5,9 @@
 
 - name: download pdb70 archive
   ansible.builtin.get_url:
-    url: https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz
+    url: http://bioinfadmin.cs.ucl.ac.uk/downloads/s4pred/weights.tar.gz
     dest: /home/ec2-user/data/
   when: not pdb70.stat.exists
+
+
+#firewalls for security

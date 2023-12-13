@@ -51,7 +51,6 @@
     path: "/home/ec2-user/data/hhsuite/bin"
   register: hhsuite
 
-
 - name: Download hhsuite
   ansible.builtin.get_url:
     url: https://github.com/soedinglab/hh-suite/releases/download/v3.3.0/hhsuite-3.3.0-AVX2-Linux.tar.gz
