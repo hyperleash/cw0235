@@ -33,4 +33,16 @@
   #become: yes
   roles:
     - data_distributer
+  vars:
+    src_file: "/home/ec2-user/data/weights.tar.gz"
+    dest_dir: "/home/ec2-user/data/"
+    delegate: "10.0.7.13"
 
+- name: Distribute scripts to other clients
+  hosts: cluster_nodes:client
+  become: yes
+  roles:
+    - script_distributer
+  vars:
+    src_file: "/home/ec2-user/cw0235/scripts"
+    dest_dir: "/home/ec2-user/"

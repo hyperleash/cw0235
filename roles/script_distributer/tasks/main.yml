@@ -1,0 +1,17 @@
+
+
+- name: Delete a specific folder
+  ansible.builtin.file:
+    path: /home/ec2-user/scripts
+    state: absent
+
+- name: Check if a folder exists
+  ansible.builtin.stat:
+    path: /home/ec2-user/scripts
+  register: f_stat
+
+- name: Copy file to remote node
+  ansible.builtin.copy:
+    src:  "{{ src_file }}"
+    dest: "{{ dest_dir }}"
+  when: not f_stat.stat.exists
