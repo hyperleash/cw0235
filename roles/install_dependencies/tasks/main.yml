@@ -68,12 +68,8 @@
   ansible.builtin.file:
     state: absent
     path: /home/ec2-user/data/hhsuite/hhsuite-3.3.0-AVX2-Linux.tar.gz
-
-- name: Delete files
-  ansible.builtin.file:
-    state: absent
-    path: /home/ec2-user/data/home/
   
+
 
 
   

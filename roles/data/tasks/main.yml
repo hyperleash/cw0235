@@ -1,12 +1,19 @@
-- name: Check if pdb70 folder exists
+- name: Check if pdb70 archive exists
   stat:
-    path: "/home/ec2-user/data/pdb70/"
+    path: /home/ec2-user/data/pdb70_from_mmcif_latest.tar.gz
   register: pdb70
+
+- name: Create temp folder for incomplete downloads on larger volume
+  ansible.builtin.file:
+    path: home/ec2-user/data/tmp/
+    state: directory
+    mode: '0755'
 
 - name: download pdb70 archive
   ansible.builtin.get_url:
-    url: http://bioinfadmin.cs.ucl.ac.uk/downloads/s4pred/weights.tar.gz
-    dest: /home/ec2-user/data/
+    url: "http://bioinfadmin.cs.ucl.ac.uk/downloads/COMP0235_tmp/pdb70_from_mmcif_latest.tar.gz"
+    dest: "/home/ec2-user/data/"
+    tmp_dest: /home/ec2-user/data/tmp/
   when: not pdb70.stat.exists
 
 

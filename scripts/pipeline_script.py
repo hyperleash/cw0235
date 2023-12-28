@@ -12,7 +12,7 @@ def run_parser(hhr_file):
     """
     Run the results_parser.py over the hhr file to produce the output summary
     """
-    cmd = ['python', './results_parser.py', hhr_file]
+    cmd = ['python3', '/home/ec2-user/scripts/results_parser.py', hhr_file]
     print(f'STEP 4: RUNNING PARSER: {" ".join(cmd)}')
     p = Popen(cmd, stdin=PIPE,stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
@@ -22,9 +22,9 @@ def run_hhsearch(a3m_file):
     """
     Run HHSearch to produce the hhr file
     """
-    cmd = ['/home/dbuchan/Applications/hh-suite-3.3.0/build/bin/hhsearch',
+    cmd = ['/home/ec2-user/data/hhsuite/bin/hhsearch',
            '-i', a3m_file, '-cpu', str(multiprocessing.cpu_count() - 1), '-d', 
-           '/home/dbuchan/Data/hhdb/pdb70/pdb70']
+           '/home/ec2-user/data/pdb70/pdb70']
     print(f'STEP 3: RUNNING HHSEARCH: {" ".join(cmd)}')
     p = Popen(cmd, stdin=PIPE,stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
@@ -53,7 +53,7 @@ def run_s4pred(input_file, out_file):
     """
     Runs the s4pred secondary structure predictor to produce the horiz file
     """
-    cmd = ['/usr/bin/python3', '/home/dbuchan/Code/s4pred/run_model.py',
+    cmd = ['python3', '/home/ec2-user/data/s4pred/run_model.py',
            '-t', 'horiz', '-T', str(multiprocessing.cpu_count() - 1), input_file]
     print(f'STEP 1: RUNNING S4PRED: {" ".join(cmd)}')
     p = Popen(cmd, stdin=PIPE,stdout=PIPE, stderr=PIPE)

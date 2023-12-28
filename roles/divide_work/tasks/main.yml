@@ -24,9 +24,9 @@
 
 - name: Set line count as a fact
   set_fact:
-    line_count: "{{ n_ids.stdout.split(' ')[0] }}"
+    line_count: "{{ (n_ids.stdout.split(' ')[0] | int) + 1}}"
   
-- name: Display number of CPU threads
+- name: Display number of ids to process
   debug:
     var: line_count
   run_once: true

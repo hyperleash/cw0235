@@ -5,3 +5,24 @@
   tasks:
     - name: Ping hosts
       ansible.builtin.ping:
+
+- name: Delete the hhsuite archive
+  hosts: cluster_nodes
+  tasks:
+    - name: Delete specified files
+      file:
+        path: "/home/ec2-user/data/{{ item }}"
+        state: absent
+      loop:
+        - pdb70_a3m.ffdata
+        - pdb70_a3m.ffindex
+        - pdb70_cs219.ffdata
+        - pdb70_cs219.ffindex
+        - pdb70_hhm.ffdata
+        - pdb70_hhm.ffindex
+        - pdb70_clu.tsv
+        - pdb_filter.dat
+        - md5sum
+        - hhsuite-3.3.0-AVX2-Linux
+        - pdb70_from_mmcif_latest.tar.gz
+        - pdb70
