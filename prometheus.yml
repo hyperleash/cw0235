@@ -1,0 +1,167 @@
+- name: install and start firewalld
+  hosts: cluster_nodes:client:localhost
+  become: yes
+  tasks:
+    - name: Install firewalld
+      ansible.builtin.package:
+        name: firewalld
+        state: present
+
+    - name: Start and enable firewalld service
+      ansible.builtin.systemd:
+        name: firewalld
+        state: started
+        enabled: yes
+
+
+- name: Node exporter installation
+  hosts: cluster_nodes:client:localhost
+  become: true
+  become_user: root
+  tasks:
+  - name: accept repo GPG key
+    ansible.builtin.shell:
+      cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+  - name: Install EPEL
+    ansible.builtin.dnf:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+      state: present
+  - name: install node-exporter
+    ansible.builtin.dnf:
+      name: golang-github-prometheus-node-exporter
+      state: latest
+  - name: Check if node_exporter.service exists
+    ansible.builtin.stat:
+      path: /etc/systemd/system/node_exporter.service
+    register: node_exporter_service
+
+  - name: Create node_exporter.service
+    ansible.builtin.copy:
+      dest: node_exporter.service
+      content: |
+        [Unit]
+        Description=Node Exporter
+        After=network.target
+        
+        [Service]
+        User=root
+        Group=root
+        Type=simple
+        ExecStart=/usr/bin/node_exporter
+        
+        [Install]
+        WantedBy=multi-user.target
+      mode: '0644'
+    when: not node_exporter_service.stat.exists
+  - name: move service file
+    ansible.builtin.copy:
+      src: node_exporter.service
+      dest: /etc/systemd/system/node_exporter.service
+      remote_src: yes
+      owner: root
+      group: root
+  - name: start node-exporter
+    ansible.builtin.service:
+      name: node_exporter
+      state: started
+      daemon_reload: true
+  - name: open port 9100
+    ansible.posix.firewalld:
+      port: 9100/tcp
+      permanent: true
+      state: enabled
+      zone: public
+      immediate: true
+
+- name: Prometheus installation
+  hosts: localhost
+  become: true
+  become_user: root
+  tasks:
+  - name: accept repo GPG key
+    ansible.builtin.shell:
+      cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+  - name: Install EPEL
+    ansible.builtin.dnf:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+      state: present
+  - name: install prometheus
+    ansible.builtin.dnf:
+      name: golang-github-prometheus
+      state: latest
+  - name: install grafana
+    ansible.builtin.dnf:
+      name: grafana
+      state: latest
+  - name: change prometheus configuration according to template
+    ansible.builtin.template:
+      src: prometheus.yml.j2
+      dest: /etc/prometheus/prometheus.yml
+    vars:
+      node_ips: "{{ (groups['cluster_nodes'] + groups['client']) | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list }}"
+  - name: Check if prometheus.service exists
+    ansible.builtin.stat:
+      path: /etc/systemd/system/prometheus.service
+    register: prometheus_service
+
+  - name: Create prometheus.service
+    ansible.builtin.copy:
+      dest: prometheus.service
+      content: |
+        [Unit]
+        Description=Prometheus Server
+        Wants=network-online.target
+        After=network-online.target
+        
+        [Service]
+        User=root
+        Group=root
+        Type=simple
+        ExecStart=/usr/bin/prometheus --config.file=/etc/prometheus/prometheus.yml
+        Restart=always
+        RestartSec=2
+        StartLimitInterval=0
+        
+        [Install]
+        WantedBy=multi-user.target
+      mode: '0644'
+    when: not  prometheus_service.stat.exists
+  - name: move service file
+    ansible.builtin.copy:
+      src:  prometheus.service
+      dest: /etc/systemd/system/prometheus.service
+      remote_src: yes
+      owner: root
+      group: root
+  - name: Reload systemd manager configuration
+    ansible.builtin.systemd:
+      daemon_reload: yes
+  - name: Start prometheus service
+    ansible.builtin.systemd:
+      name: prometheus
+      state: started
+
+  - name: Enable prometheus service to start at boot
+    ansible.builtin.systemd:
+      name: prometheus.service
+      enabled: yes
+  - name: Start Grafana service
+    ansible.builtin.systemd:
+      name: grafana-server
+      state: started
+
+  - name: Enable Grafana service to start at boot
+    ansible.builtin.systemd:
+      name: grafana-server.service
+      enabled: yes
+
+  - name: Check Grafana service status
+    ansible.builtin.systemd:
+      name: grafana-server
+      state: started
+    register: grafana_status
+
+  - name: Display Grafana service status
+    ansible.builtin.debug:
+      var: grafana_status 
+  

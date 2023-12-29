@@ -1,6 +1,8 @@
 - name: Check if pdb70 archive exists
   stat:
     path: /home/ec2-user/data/pdb70_from_mmcif_latest.tar.gz
+    get_checksum: False  #This makes it quicker for large files
+    get_md5: False
   register: pdb70
 
 - name: Create temp folder for incomplete downloads on larger volume
