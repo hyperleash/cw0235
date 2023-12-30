@@ -6,7 +6,7 @@ After=network.target
 User=root
 Group=root
 Type=simple
-ExecStart=/usr/bin/node_exporter
+ExecStart=/usr/bin/node_exporter --collector.textfile.directory=/home/ec2-user/custom_prom_metrics
 
 [Install]
 WantedBy=multi-user.target

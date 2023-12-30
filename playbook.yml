@@ -31,7 +31,6 @@
         state: started
         enabled: yes
 
-
 - name: Node exporter installation
   hosts: cluster_nodes:client:localhost
   become: true
@@ -52,7 +51,30 @@
     ansible.builtin.stat:
       path: /etc/systemd/system/node_exporter.service
     register: node_exporter_service
-
+  - name: Create a directory for custom metrics
+    ansible.builtin.file:
+      path: /home/ec2-user/custom_prom_metrics
+      state: directory
+      mode: '0644'
+  - name: Create custom prometheus metric for task completion percentage
+    ansible.builtin.copy:
+      dest: /home/ec2-user/custom_prom_metrics/processed_tasks.prom
+      content: |
+        # HELP processed_tasks_percent The total number of processed tasks.
+        # TYPE processed_tasks_percent gauge
+        processed_tasks_percent {label="tasks"} 0
+      mode: '0644'
+  - name: change the owner back to ec2-user 
+    ansible.builtin.file:
+      path: /home/ec2-user/custom_prom_metrics/processed_tasks.prom
+      mode: u+rwx,a+wx
+      owner: ec2-user
+  - name: change the owner back to ec2-user 
+    ansible.builtin.file:
+      path: /home/ec2-user/custom_prom_metrics
+      state: directory
+      mode: u+rwx,a+wx
+      owner: ec2-user
   - name: Create node_exporter.service
     ansible.builtin.copy:
       dest: node_exporter.service
@@ -65,8 +87,8 @@
         User=root
         Group=root
         Type=simple
-        ExecStart=/usr/bin/node_exporter
-        
+        ExecStart=/usr/bin/node_exporter --collector.textfile.directory=/home/ec2-user/custom_prom_metrics
+
         [Install]
         WantedBy=multi-user.target
       mode: '0644'
@@ -279,7 +301,8 @@
   vars:
     src_file: "/home/ec2-user/cw0235/scripts"
     dest_dir: "/home/ec2-user/"
-  
+
+
 - name: Distribute full list of experiment ids
   hosts: cluster_nodes:client
   become: yes

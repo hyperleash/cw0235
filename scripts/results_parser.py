@@ -28,6 +28,8 @@ fhOut.close()
 with open("hhr_parse.out", 'r') as source_file:
     data = source_file.read()
 
+
+
     
 with open("local_results.txt", 'a') as target_file:
     target_file.write(data)

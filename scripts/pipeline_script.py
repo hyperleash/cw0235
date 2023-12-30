@@ -78,6 +78,14 @@ def read_input(file, ids_file):
             ids.append(record.id)
     return(sequences)
 
+def update_metrics():
+    """
+    Function that runs the script to update the custom Prometheus metrics
+    """
+    cmd = ['python3','/home/ec2-user/scripts/update_metrics.py']
+    print(f'UPDATING PROM METRICS: {" ".join(cmd)}')
+    p = Popen(cmd, stdin=PIPE,stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
 
 if __name__ == "__main__":
     
@@ -96,3 +104,5 @@ if __name__ == "__main__":
         read_horiz(tmp_file, horiz_file, a3m_file)
         run_hhsearch(a3m_file)
         run_parser(hhr_file)
+        update_metrics()
+        
