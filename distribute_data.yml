@@ -1,0 +1,15 @@
+- name: Check if pdb70 is unzipped
+  stat:
+    path: /home/ec2-user/data/pdb70/pdb70_a3m.ffdata
+    get_checksum: False  #This makes it quicker for large files
+    get_md5: False
+  register: pdb70
+
+- name: Synchronize file from download host to other clients
+  ansible.builtin.synchronize:
+    src:  "/home/ec2-user/data/pdb70"
+    dest: "/home/ec2-user/data/"
+    mode: push
+    private_key: /home/ec2-user/.ssh/lecturer_key
+  delegate_to: "10.0.7.13"
+  when: not pdb70.stat.exists

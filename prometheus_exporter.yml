@@ -1,0 +1,76 @@
+- name: accept repo GPG key
+  ansible.builtin.shell:
+    cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+- name: Install EPEL
+  ansible.builtin.dnf:
+    name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    state: present
+- name: install node-exporter
+  ansible.builtin.dnf:
+    name: golang-github-prometheus-node-exporter
+    state: latest
+- name: Check if node_exporter.service exists
+  ansible.builtin.stat:
+    path: /etc/systemd/system/node_exporter.service
+  register: node_exporter_service
+- name: Create a directory for custom metrics
+  ansible.builtin.file:
+    path: /home/ec2-user/custom_prom_metrics
+    state: directory
+    mode: '0644'
+- name: Create custom prometheus metric for task completion percentage
+  ansible.builtin.copy:
+    dest: /home/ec2-user/custom_prom_metrics/processed_tasks.prom
+    content: |
+        # HELP processed_tasks_percent The total number of processed tasks.
+        # TYPE processed_tasks_percent gauge
+        processed_tasks_percent {label="tasks"} 0
+    mode: '0644'
+- name: change the owner back to ec2-user 
+  ansible.builtin.file:
+    path: /home/ec2-user/custom_prom_metrics/processed_tasks.prom
+    mode: u+rwx,a+wx
+    owner: ec2-user
+- name: change the owner back to ec2-user 
+  ansible.builtin.file:
+    path: /home/ec2-user/custom_prom_metrics
+    state: directory
+    mode: u+rwx,a+wx
+    owner: ec2-user
+- name: Create node_exporter.service
+  ansible.builtin.copy:
+    dest: node_exporter.service
+    content: |
+      [Unit]
+      Description=Node Exporter
+      After=network.target
+        
+      [Service]
+      User=root
+      Group=root
+      Type=simple
+      ExecStart=/usr/bin/node_exporter --collector.textfile.directory=/home/ec2-user/custom_prom_metrics
+
+      [Install]
+      WantedBy=multi-user.target
+      mode: '0644'
+  when: not node_exporter_service.stat.exists
+- name: move service file
+  ansible.builtin.copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+    remote_src: yes
+    owner: root
+    group: root
+- name: start node-exporter
+  ansible.builtin.service:
+    name: node_exporter
+    state: started
+    daemon_reload: true
+- name: open port 9100
+  ansible.posix.firewalld:
+    port: 9100/tcp
+    permanent: true
+    state: enabled
+    zone: public
+    immediate: true

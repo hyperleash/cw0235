@@ -1,0 +1,13 @@
+- name: Set line range for each node
+  set_fact:
+    node_line_start: "{{ host_line_range.start_line }}"
+    node_line_end: "{{ host_line_range.end_line }}"
+  vars:
+    host_line_range: "{{ hostvars['localhost'].line_ranges | selectattr('host', 'equalto', inventory_hostname) | first }}"
+
+- name: Display line ranges for each node
+  debug:
+    msg: "{{ inventory_hostname }} does lines {{ hostvars[inventory_hostname].node_line_start }} to {{ hostvars[inventory_hostname].node_line_end }}"
+
+- name: Create a file with new ids
+  ansible.builtin.shell: "awk 'NR >= {{hostvars[inventory_hostname].node_line_start}} && NR <= {{hostvars[inventory_hostname].node_line_end}}' /home/ec2-user/scripts/experiment_ids.txt > /home/ec2-user/scripts/partial_ids.txt"

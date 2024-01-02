@@ -1,0 +1,70 @@
+- name: python
+  ansible.builtin.dnf:
+    name: 
+          - python3
+          - python3-pip
+          - git
+
+- name: install python dependencies
+  ansible.builtin.pip:
+    name: biopython, scipy, numpy
+  
+- name: install torch
+  ansible.builtin.command: pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+- name: install s4pred
+  ansible.builtin.git:
+    repo: https://github.com/psipred/s4pred
+    dest: "/home/ec2-user/data/s4pred"
+
+- name: Check if weights exists
+  stat:
+    path: "/home/ec2-user/data/s4pred/weights"
+  register: weights
+
+- name: Download tarball
+  ansible.builtin.get_url:
+    url: http://bioinfadmin.cs.ucl.ac.uk/downloads/s4pred/weights.tar.gz
+    dest: /home/ec2-user/data/s4pred/weights.tar.gz
+  when: not weights.stat.exists
+  
+- name: Unzip tarball
+  ansible.builtin.unarchive:
+    src: /home/ec2-user/data/s4pred/weights.tar.gz
+    dest: /home/ec2-user/data/s4pred
+    remote_src: yes
+  when: not weights.stat.exists
+
+- name: Delete the archive
+  ansible.builtin.file:
+    state: absent
+    path: /home/ec2-user/data/s4pred/weights.tar.gz
+
+- name: create a hhsuite folder
+  ansible.builtin.file:
+    path: /home/ec2-user/data/hhsuite
+    state: directory
+    mode: '0755' 
+  
+- name: Check if hhsuite bin exists
+  stat:
+    path: "/home/ec2-user/data/hhsuite/bin"
+  register: hhsuite
+
+- name: Download hhsuite
+  ansible.builtin.get_url:
+    url: https://github.com/soedinglab/hh-suite/releases/download/v3.3.0/hhsuite-3.3.0-AVX2-Linux.tar.gz
+    dest: /home/ec2-user/data/hhsuite/
+  when: not hhsuite.stat.exists
+
+- name: Unzip hhsuite
+  ansible.builtin.unarchive:
+    src: /home/ec2-user/data/hhsuite/hhsuite-3.3.0-AVX2-Linux.tar.gz
+    dest: /home/ec2-user/data/hhsuite/
+    remote_src: yes
+  when: not hhsuite.stat.exists
+
+- name: Delete the hhsuite archive
+  ansible.builtin.file:
+    state: absent
+    path: /home/ec2-user/data/hhsuite/hhsuite-3.3.0-AVX2-Linux.tar.gz

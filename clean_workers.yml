@@ -1,0 +1,7 @@
+- name: Delete specified files
+  file:
+    path: "/home/ec2-user/{{ item }}"
+    state: absent
+  loop:
+    - hhr_parse.out 
+    - local_results.txt 

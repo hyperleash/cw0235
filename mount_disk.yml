@@ -1,0 +1,27 @@
+- name: create a mount point for the data volume
+  ansible.builtin.file:
+    path: data/nvme1n1
+    state: directory
+    mode: '0755' 
+
+- name: format the volume as ext4
+  community.general.filesystem:
+    dev: /dev/nvme1n1
+    fstype: ext4
+  become: true
+  
+- name: mount the filesystem
+  become: true
+  ansible.posix.mount:
+    name: data
+    src: /dev/nvme1n1
+    fstype: ext4
+    state: mounted 
+
+- name: change the owner back to ec2-user after mounting
+  become: true
+  ansible.builtin.file:
+    path: data/
+    state: directory
+    mode: u+rwx,a+x
+    owner: ec2-user

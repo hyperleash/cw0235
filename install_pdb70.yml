@@ -1,0 +1,38 @@
+- name: Check if pdb70 is unzipped
+  stat:
+    path: /home/ec2-user/data/pdb70/pdb70_a3m.ffdata 
+    get_checksum: False  #This makes it quicker for large files
+    get_md5: False
+  register: pdb70
+
+- name: Create temp folder for incomplete downloads on larger volume
+  ansible.builtin.file:
+    path: /home/ec2-user/data/tmp/
+    state: directory
+    mode: '0755'
+
+- name: download pdb70 archive
+  ansible.builtin.get_url:
+    url: "http://bioinfadmin.cs.ucl.ac.uk/downloads/COMP0235_tmp/pdb70_from_mmcif_latest.tar.gz"
+    dest: "/home/ec2-user/data/"
+    tmp_dest: /home/ec2-user/data/tmp/
+  when: not pdb70.stat.exists
+
+- name: create a pdb70 folder
+  ansible.builtin.file:
+    path: /home/ec2-user/data/pdb70
+    state: directory
+    mode: '0755'
+  when: not pdb70.stat.exists
+
+- name: Unzip pdb70
+  ansible.builtin.unarchive:
+    src: /home/ec2-user/data/pdb70_from_mmcif_latest.tar.gz
+    dest: /home/ec2-user/data/pdb70/
+    remote_src: yes
+  when: not pdb70.stat.exists
+
+- name: Delete the pdb70 archive
+  ansible.builtin.file:
+    state: absent
+    path: /home/ec2-user/data/pdb70_from_mmcif_latest.tar.gz
