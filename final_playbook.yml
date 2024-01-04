@@ -136,10 +136,10 @@
   hosts: cluster_nodes:client
   gather_facts: true
   tasks:
-    - name: Generate Key on the localhost
+    - name: Fetch files from remote nodes and combine into a master file
       include_tasks: fetch_results.yml
     
-- name: Create finale results files
+- name: Create final results files
   hosts: localhost
   tasks:
     - name: Run Python script

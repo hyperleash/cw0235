@@ -1,0 +1,17 @@
+
+
+- name: Fetch files from remote nodes and combine into a master file
+  hosts: cluster_nodes:client
+  gather_facts: true
+  tasks:
+    - name: Concatenate contents on the control node
+      ansible.builtin.shell: "cat /home/ec2-user/cw0235/{{ item }}/local_results.txt >> /home/ec2-user/cw0235/all_results.txt"
+      loop: "{{ ansible_play_hosts }}"
+      delegate_to: localhost
+      run_once: true
+    
+- name: Create final results files
+  hosts: localhost
+  tasks:
+    - name: Run Python script
+      ansible.builtin.command: python3 /home/ec2-user/cw0235/process_results.py

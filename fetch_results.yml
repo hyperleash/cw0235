@@ -5,7 +5,7 @@
     flat: yes
     
 - name: Concatenate contents on the control node
-    ansible.builtin.shell: "cat /home/ec2-user/cw0235/{{ item }}/local_results.txt >> /home/ec2-user/cw0235/all_results.txt"
-    loop: "{{ ansible_play_hosts }}"
-    delegate_to: localhost
-    run_once: true
+  ansible.builtin.shell: "cat /home/ec2-user/cw0235/{{ item }}/local_results.txt >> /home/ec2-user/cw0235/all_results.txt"
+  loop: "{{ ansible_play_hosts }}"
+  delegate_to: localhost
+  run_once: true
