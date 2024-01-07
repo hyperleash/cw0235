@@ -1,0 +1,13 @@
+- name: Generate Key on the localhost
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Generate Key on the localhost
+      include_tasks: ansible_tasks/generate_keys.yml
+
+- name: Distribute keys to cluster nodes
+  hosts: cluster_nodes:client
+  become: yes
+  tasks:
+    - name: Distribute keys to cluster nodes
+      include_tasks: ansible_tasks/distribute_keys.yml

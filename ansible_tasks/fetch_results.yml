@@ -1,0 +1,11 @@
+- name: Fetch file from remote node
+  ansible.builtin.fetch:
+    src: /home/ec2-user/local_results.txt
+    dest: /home/ec2-user/cw0235/{{ inventory_hostname }}/
+    flat: yes
+    
+- name: Concatenate contents on the control node
+  ansible.builtin.shell: "cat /home/ec2-user/cw0235/{{ item }}/local_results.txt >> /home/ec2-user/cw0235/all_results.txt"
+  loop: "{{ ansible_play_hosts }}"
+  delegate_to: localhost
+  run_once: true

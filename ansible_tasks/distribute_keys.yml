@@ -1,0 +1,5 @@
+- name: Add public key to authorized keys
+  authorized_key:
+    user: "ec2-user"
+    key: "{{ lookup('file', '~/.ssh/ansible_identity.pub') }}"
+    state: present
