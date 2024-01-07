@@ -28,6 +28,8 @@ sudo yum install -y python3 git
 sudo yum install -y python3-pip
 
 sudo pip3 install ansible
+
+sudo pip3 install pandas
 ```
 
 ## Step 4: Clone the coursework github repository
