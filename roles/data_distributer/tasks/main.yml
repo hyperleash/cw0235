@@ -1,7 +1,0 @@
-- name: Synchronize file from download host to other clients
-  ansible.builtin.synchronize:
-    src:  "{{ src_file }}"
-    dest: "{{ dest_dir }}"
-    mode: push
-    private_key: /home/ec2-user/.ssh/lecturer_key
-  delegate_to: "{{ delegate }}"

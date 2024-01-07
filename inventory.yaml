@@ -1,8 +1,0 @@
-cluster_nodes:
-  hosts:
-    10.0.15.126:
-    10.0.4.216:
-    10.0.13.155:
-    10.0.2.244:
-  vars:
-    ansible_ssh_private_key_file: ~/.ssh/lecturer_key

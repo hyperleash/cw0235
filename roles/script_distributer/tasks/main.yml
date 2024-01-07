@@ -1,7 +1,0 @@
-
-- name: Copy file to remote node
-  ansible.builtin.copy:
-    src:  "{{ src_file }}"
-    dest: "{{ dest_dir }}"
-
-  
