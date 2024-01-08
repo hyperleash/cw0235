@@ -1,15 +1,3 @@
-- name: Uninstall Prometheus 
-  become: true
-  ansible.builtin.dnf:
-    name: golang-github-prometheus
-    state: absent
-
-- name: Uninstall Grafana
-  become: true
-  ansible.builtin.dnf:
-    name: grafana
-    state: absent
-
 - name: Delete specified files
   file:
     path: "/home/ec2-user/{{ item }}"
